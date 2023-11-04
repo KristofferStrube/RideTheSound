@@ -11,7 +11,7 @@ body {
     outline: none;
     border: none;
     border-radius: 10px;
-    font-size: 60px;
+    font-size: 45px;
     margin:20px;
     color: white;
 }
@@ -33,7 +33,7 @@ body {
 }
 
 .playername-input {
-    font-size: 56px;
+    font-size: 40px;
     border-radius: 10px;
     width: 130px;
 }

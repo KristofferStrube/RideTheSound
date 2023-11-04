@@ -40,7 +40,7 @@
                         @if (playerName.Length is 3)
                         {
                             <button class="btn btn-submit" @onclick=SubmitScore>
-                                <input class="playername-input @(playerName.Length is 3 ? "input-valid" : "input-invalid")" @bind-value=playerName @bind-value:event="oninput" @bind-value:after=ValidatePlayerName />
+                                <input @onclick:stopPropagation=true class="playername-input @(playerName.Length is 3 ? "input-valid" : "input-invalid")" @bind-value=playerName @bind-value:event="oninput" @bind-value:after=ValidatePlayerName />
                                 Submit Score
                             </button>
                         }
