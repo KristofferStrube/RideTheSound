@@ -1,0 +1,42 @@
+﻿@page "/"
+@using RideTheSound.Extensions
+
+<div style="user-select:none;">
+    <svg width="99.9vw" height="99vh" viewBox="1 @min.AsString() @(curve.Length-2) @height.AsString()" @oncontextmenu:preventDefault="true">
+        <defs>
+            <filter id="glow" y="-40%" height="180%">
+                <feGaussianBlur class="blur" result="coloredBlur" stdDeviation="1"></feGaussianBlur>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"></feMergeNode>
+                    <feMergeNode in="coloredBlur"></feMergeNode>
+                    <feMergeNode in="coloredBlur"></feMergeNode>
+                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+            </filter>
+        </defs>
+
+        <path stroke-width="@lineWidth.AsString()" stroke="white" fill="none" d="@curveData" filter="url(#glow)"></path>
+
+        <circle r="@playerRadius.AsString()" fill="@playerColor" cx="@playerDraw.X.AsString()" cy="@playerDraw.Y.AsString()"></circle>
+    </svg>
+
+    <div style="display:flex;position:absolute;top:0;width:100vw;font-size:50px;;font-family:Consolas;flex-direction:column;">
+        <div style="display:flex;justify-content:center;pointer-events:none;">
+            @(Math.Round(playerX / 100, 0))<br />
+        </div>
+
+        @if (dead)
+        {
+            <div style="display:flex;justify-content:center;height:70vh;align-content:center;flex-direction:column;">
+                <div></div>
+                <div>
+                    <center>
+                        <button class="btn btn-restart" @onclick=Start>
+                            Restart
+                        </button>
+                    </center>
+                </div>
+            </div>
+        }
+    </div>
+</div>
