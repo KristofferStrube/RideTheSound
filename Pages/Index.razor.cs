@@ -131,6 +131,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
 
         async Task Shrink()
         {
+            await Sound.PlayMusic();
             if (ballSize is BallSize.Big or BallSize.Growing)
             {
                 ballSize = BallSize.Shrinking;
@@ -300,6 +301,8 @@ public partial class Index : ComponentBase, IAsyncDisposable
             score = (int)(playerX / 100);
             endTime = DateTimeOffset.UtcNow;
         }
+
+        Sound.BPM = Math.Log2(Math.Abs(energy) + 1) * 110 + 10;
     }
 
     private (double x, double y) playerPosition(int index)

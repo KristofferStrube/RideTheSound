@@ -74,7 +74,7 @@
                             @for (int i = 0; i < placement.SelfInline(lastPlay).Count(); i++)
                             {
                                 var play = placement.SelfInline(lastPlay).ElementAt(i);
-                                <div style="font-weight:@(play == lastPlay ? "1000" : "500");">
+                                <div style="color:@(play == lastPlay ? "#40D040" : "white");">
                                     <pre style="margin:0;">@((placement.Position - placement.FiveBetter.Length + i).ToString().PadLeft(4)). <b>@play.User</b> : @play.Score</pre>
                                 </div>
                             }
