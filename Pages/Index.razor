@@ -13,10 +13,21 @@
                     <feMergeNode in="SourceGraphic"></feMergeNode>
                 </feMerge>
             </filter>
+            <filter id="burn" y="-40%" height="180%">
+                <feGaussianBlur class="blur" result="coloredBlur" stdDeviation="0.5"></feGaussianBlur>
+                <feMerge>
+                    <feMergeNode in="coloredBlur"></feMergeNode>
+                    <feMergeNode in="coloredBlur"></feMergeNode>
+                    <feMergeNode in="coloredBlur"></feMergeNode>
+                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+            </filter>
         </defs>
 
         <path stroke-width="@lineWidth.AsString()" stroke="white" fill="none" d="@curveData" filter="url(#glow)"></path>
 
+        <circle filter="url(#burn)" r="@((playerRadius - 2).AsString())" fill-opacity="0.5" fill="@playerColor" cx="@playerDrawShadow2.X.AsString()" cy="@playerDrawShadow2.Y.AsString()"></circle>
+        <circle filter="url(#burn)" r="@((playerRadius - 1).AsString())" fill-opacity="0.75" fill="@playerColor" cx="@playerDrawShadow1.X.AsString()" cy="@playerDrawShadow1.Y.AsString()"></circle>
         <circle r="@playerRadius.AsString()" fill="@playerColor" cx="@playerDraw.X.AsString()" cy="@playerDraw.Y.AsString()"></circle>
     </svg>
 

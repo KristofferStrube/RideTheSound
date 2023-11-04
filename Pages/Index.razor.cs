@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using RideTheSound.Events;
 using RideTheSound.Extensions;
+using System;
 using System.Drawing;
 
 namespace RideTheSound.Pages;
@@ -26,6 +27,8 @@ public partial class Index : ComponentBase, IAsyncDisposable
     private double min;
     private double height;
     private CancellationTokenSource? run;
+    private (double X, double Y) playerDrawShadow2 = (0, 0);
+    private (double X, double Y) playerDrawShadow1 = (0, 0);
     private (double X, double Y) playerDraw = (0, 0);
     private double playerRadius = 5;
     private double playerHeight = 0;
@@ -274,11 +277,21 @@ public partial class Index : ComponentBase, IAsyncDisposable
         curveData = $"M 0 {curve[0].AsString()} {string.Join(" ", curve[1..].Select((v, i) => $"L {i + 1} {v.AsString()}"))}";
         min = curve.Min() - 2;
         height = curve.Max() - min + 4;
-        double angle = Math.Atan(curve[19] - curve[20]);
-        double crossingAngle = angle + Math.PI / 2;
-        double distanceToMidOfPlayer = playerRadius + playerHeight + lineWidth / 2;
-        playerDraw = (20 + Math.Cos(crossingAngle) * distanceToMidOfPlayer, curve[20] - Math.Sin(crossingAngle) * distanceToMidOfPlayer);
 
+        int shadow1Index = 18;
+        int shadow2Index = 17;
+
+        if (dead)
+        {
+            shadow1Index = 20;
+            shadow2Index = 20;
+        }
+
+        playerDrawShadow2 = playerPosition(shadow2Index);
+        playerDrawShadow1 = playerPosition(shadow1Index);
+        playerDraw = playerPosition(20);
+
+        double angle = Math.Atan(curve[19] - curve[20]);
         energy += -angle * playerRadius / 100;
         energy *= 1 - Math.Min(0.1, (dead ? 0.01 : deltaTime * 0.000005 * energy * Math.Log2(Math.Abs(playerX * energy))));
         if (!dead && energy < 0)
@@ -289,7 +302,13 @@ public partial class Index : ComponentBase, IAsyncDisposable
         }
     }
 
-    //private double mod(double x, double y) => ((x % y) + y) % y; 
+    private (double x, double y) playerPosition(int index)
+    {
+        double angle = Math.Atan(curve[index-1] - curve[index]);
+        double crossingAngle = angle + Math.PI / 2;
+        double distanceToMidOfPlayer = playerRadius + playerHeight + lineWidth / 2;
+        return (index + Math.Cos(crossingAngle) * distanceToMidOfPlayer, curve[index] - Math.Sin(crossingAngle) * distanceToMidOfPlayer);
+    }
 
     public ValueTask DisposeAsync()
     {
