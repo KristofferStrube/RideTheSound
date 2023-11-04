@@ -55,11 +55,11 @@
                 }
                 else
                 {
-                    <center>
+                    <center style="-webkit-text-stroke: 1px black;">
                         You were better than @Math.Round(placement.BetterThanPercent*100, 2)%
                     </center>
                     <center>
-                        <div style="width:fit-content;">
+                        <div style="width:fit-content;-webkit-text-stroke: 1px black;">
                             @for (int i = 0; i < placement.SelfInline(lastPlay).Count(); i++)
                             {
                                 var play = placement.SelfInline(lastPlay).ElementAt(i);
