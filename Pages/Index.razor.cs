@@ -176,7 +176,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
         startTime = DateTimeOffset.UtcNow;
         currentTime = DateTimeOffset.UtcNow;
         playerX = 1;
-        energy = 2;
+        energy = 4;
 
         dead = false;
         score = 0;
@@ -273,7 +273,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
         curve = Enumerable
             .Range(0, 200)
             .Select(i => playerX / 100 + i / 10.0)
-            .Select(x => sines.Sum(s => s.Get(x)))
+            .Select(x => sines.Sum(s => s.Get(x)) - x / 4)
             .ToArray();
         curveData = $"M 0 {curve[0].AsString()} {string.Join(" ", curve[1..].Select((v, i) => $"L {i + 1} {v.AsString()}"))}";
         min = curve.Min() - 2;
@@ -302,7 +302,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
             endTime = DateTimeOffset.UtcNow;
         }
 
-        Sound.BPM = Math.Log2(Math.Abs(energy) + 1) * 110 + 10;
+        Sound.BPM = MathF.Log2(MathF.Abs((float)energy) + 1) * 140f + 10f;
     }
 
     private (double x, double y) playerPosition(int index)
