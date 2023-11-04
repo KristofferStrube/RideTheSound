@@ -21,13 +21,13 @@
     </svg>
 
     <div style="display:flex;position:absolute;top:0;width:100vw;font-size:50px;;font-family:Consolas;flex-direction:column;">
-        <div style="display:flex;justify-content:center;pointer-events:none;">
+        <div style="display:flex;justify-content:center;pointer-events:none;height:10vh;">
             @(dead ? score : Math.Round(playerX / 100, 0))<br />
         </div>
 
         @if (dead)
         {
-            <div style="display:flex;justify-content:center;height:70vh;align-content:center;flex-direction:column;">
+            <div style="display:flex;justify-content:center;height:90vh;align-content:center;flex-direction:column;">
                 <center>
                     <button class="btn btn-restart" @onclick=Start>
                         Restart
@@ -56,7 +56,7 @@
                 else
                 {
                     <center>
-                        <h2>You were better than @Math.Round(placement.BetterThanPercent*100, 2)%</h2>
+                        You were better than @Math.Round(placement.BetterThanPercent*100, 2)%
                     </center>
                     <center>
                         <div style="width:fit-content;">
@@ -64,7 +64,7 @@
                             {
                                 var play = placement.SelfInline(lastPlay).ElementAt(i);
                                 <div style="text-decoration:@(play == lastPlay ? "underline" : "none");">
-                                    @(placement.Position - placement.FiveBetter.Length + i). <b>@play.User</b> : @play.Score
+                                    @((placement.Position - placement.FiveBetter.Length + i).ToString().PadLeft(4)). <b>@play.User</b> : @play.Score
                                 </div>
                             }
                         </div>
