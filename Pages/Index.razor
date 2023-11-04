@@ -22,13 +22,12 @@
 
     <div style="display:flex;position:absolute;top:0;width:100vw;font-size:50px;;font-family:Consolas;flex-direction:column;">
         <div style="display:flex;justify-content:center;pointer-events:none;">
-            @(Math.Round(playerX / 100, 0))<br />
+            @(dead ? score : Math.Round(playerX / 100, 0))<br />
         </div>
 
         @if (dead)
         {
             <div style="display:flex;justify-content:center;height:70vh;align-content:center;flex-direction:column;">
-                <div></div>
                 <div>
                     <center>
                         <button class="btn btn-restart" @onclick=Start>

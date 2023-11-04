@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using RideTheSound.Events;
 using RideTheSound.Extensions;
+using System.Drawing;
 
 namespace RideTheSound.Pages;
 
@@ -23,7 +24,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
     private double playerX;
     private double min;
     private double height;
-    private bool running;
+    private CancellationTokenSource? run;
     private (double X, double Y) playerDraw = (0, 0);
     private double playerRadius = 5;
     private double playerHeight = 0;
@@ -34,14 +35,16 @@ public partial class Index : ComponentBase, IAsyncDisposable
     private JumpState ballJump = JumpState.Grounded;
     private double jumpTime = 0;
     private readonly List<SineCurve> sines = [
-        new SineCurve(16, Math.PI / 12, 0, 10),
-        new SineCurve(12, Math.PI / 3, 100, 10),
-        new SineCurve(8, Math.PI / 5, 200, 10),
-        new SineCurve(12, Math.PI / 6, 300, 10),
-        new SineCurve(7, Math.PI / 8, 400, 10),
-        new SineCurve(8, Math.PI / 2, 400, 10),
+        new SineCurve(16, Math.PI / 12, 0, 50),
+        new SineCurve(12, Math.PI / 3, 100, 50),
+        new SineCurve(8, Math.PI / 5, 200, 50),
+        new SineCurve(12, Math.PI / 6, 300, 50),
+        new SineCurve(7, Math.PI / 8, 400, 50),
+        new SineCurve(4, Math.PI / 4, 500, 50),
+        new SineCurve(4, Math.PI / 3, 600, 50),
     ];
     private bool dead = false;
+    private int score = 0;
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -72,6 +75,10 @@ public partial class Index : ComponentBase, IAsyncDisposable
             var key = await e.GetKeyAsync();
             if (key is "ArrowRight" or "d")
                 await Grow();
+            if (key is "r")
+            {
+                Start();
+            }
         });
         mouseDown = await EventListener<PointerEvent>.CreateAsync(JSRuntime, async (e) =>
         {
@@ -157,9 +164,12 @@ public partial class Index : ComponentBase, IAsyncDisposable
         energy = 2;
 
         dead = false;
-        running = true;
+        score = 0;
+        run?.Cancel();
+        run = new();
+        var cancel = run.Token;
 
-        while (running)
+        while (!cancel.IsCancellationRequested)
         {
             await Task.Delay(10);
             MakeCurve();
@@ -233,9 +243,10 @@ public partial class Index : ComponentBase, IAsyncDisposable
 
         energy += -angle * playerRadius / 100;
         energy *= 1 - Math.Min(0.1, (dead ? 0.01 : deltaTime * 0.000005 * energy * Math.Log2(Math.Abs(playerX * energy))));
-        if (energy < 0)
+        if (!dead && energy < 0)
         {
             dead = true;
+            score = (int)(playerX / 100);
         }
     }
 
@@ -243,7 +254,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
 
     public ValueTask DisposeAsync()
     {
-        running = false;
+        run?.Cancel();
         return ValueTask.CompletedTask;
     }
 
