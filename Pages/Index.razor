@@ -28,13 +28,31 @@
         @if (dead)
         {
             <div style="display:flex;justify-content:center;height:70vh;align-content:center;flex-direction:column;">
-                <div>
+                <center>
+                    <button class="btn btn-restart" @onclick=Start>
+                        Restart
+                    </button>
+                </center>
+                @if (placement is null || lastPlay is null)
+                {
                     <center>
-                        <button class="btn btn-restart" @onclick=Start>
-                            Restart
+                        <button class="btn btn-submit" @onclick=SubmitScore>
+                            Submit Score
                         </button>
                     </center>
-                </div>
+                }
+                else
+                {
+                    <center>
+                        @for (int i = 0; i < placement.SelfInline(lastPlay).Count(); i++)
+                        {
+                            var play = placement.SelfInline(lastPlay).ElementAt(i);
+                            <div style="text-decoration@(play == lastPlay ? "underline" : "none");">
+                                @(placement.Position - placement.FiveBetter.Length + i). <b>@play.User</b> : @play.Score
+                            </div>
+                        }
+                    </center>
+                }
             </div>
         }
     </div>

@@ -21,6 +21,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
     private string curveData = "";
     private DateTimeOffset startTime;
     private DateTimeOffset currentTime;
+    private DateTimeOffset endTime;
     private double playerX;
     private double min;
     private double height;
@@ -45,12 +46,19 @@ public partial class Index : ComponentBase, IAsyncDisposable
     ];
     private bool dead = false;
     private int score = 0;
+    private string token = "";
+    private Play? lastPlay;
+    private Placement? placement;
+    private string playerName = "KSG";
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
 
     [Inject]
     public required Sound Sound { get; set; }
+
+    [Inject]
+    public required ScoreManager ScoreManager { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,7 +85,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
                 await Grow();
             if (key is "r")
             {
-                Start();
+                await Start();
             }
         });
         mouseDown = await EventListener<PointerEvent>.CreateAsync(JSRuntime, async (e) =>
@@ -158,6 +166,9 @@ public partial class Index : ComponentBase, IAsyncDisposable
 
     private async Task Start()
     {
+        token = await ScoreManager.GetToken();
+        lastPlay = null;
+        placement = null;
         startTime = DateTimeOffset.UtcNow;
         currentTime = DateTimeOffset.UtcNow;
         playerX = 0;
@@ -174,6 +185,22 @@ public partial class Index : ComponentBase, IAsyncDisposable
             await Task.Delay(10);
             MakeCurve();
             StateHasChanged();
+        }
+    }
+
+    private async Task SubmitScore()
+    {
+        if (lastPlay is null && placement is null)
+        {
+            lastPlay = new Play()
+            {
+                Score = score,
+                User = playerName,
+                StartTime = startTime,
+                EndTime = endTime,
+                Token = token
+            };
+            placement = await ScoreManager.SubmitScore(lastPlay);
         }
     }
 
@@ -247,6 +274,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
         {
             dead = true;
             score = (int)(playerX / 100);
+            endTime = DateTimeOffset.UtcNow;
         }
     }
 
