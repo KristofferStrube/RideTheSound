@@ -20,18 +20,19 @@
         <circle r="@playerRadius.AsString()" fill="@playerColor" cx="@playerDraw.X.AsString()" cy="@playerDraw.Y.AsString()"></circle>
     </svg>
 
-    <div style="display:flex;position:absolute;top:0;width:100vw;font-size:50px;;font-family:Consolas;flex-direction:column;">
-        <div style="display:flex;justify-content:center;pointer-events:none;height:10vh;">
+    <div style="display:flex;position:absolute;top:0;width:100vw;font-family:Consolas;flex-direction:column;">
+        <div style="display:flex;justify-content:center;pointer-events:none;height:10vh;font-size:50px;">
             @(dead ? score : Math.Round(playerX / 100, 0))<br />
         </div>
 
         @if (dead)
         {
-            <div style="display:flex;justify-content:center;height:90vh;align-content:center;flex-direction:column;">
+            <div style="display:flex;justify-content:center;height:90vh;align-content:center;flex-direction:column;font-size:25px;">
                 <center>
                     <button class="btn btn-restart" @onclick=Start>
                         Restart
                     </button>
+                    Hej med dig
                 </center>
                 @if (placement is null || lastPlay is null)
                 {
