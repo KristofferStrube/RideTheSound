@@ -81,20 +81,21 @@ public class Sound
 
     public async Task PlayBlow()
     {
-        GainNode gainNode = await PlaySound("blow", 1, 2);
+        GainNode gainNode = await PlaySound("blow", 0, 2);
 
         var gainParam = await gainNode.GetGainAsync();
         var time = await context.GetCurrentTimeAsync();
-        await gainParam.LinearRampToValueAtTimeAsync(0, time + 0.2);
+        await gainParam.LinearRampToValueAtTimeAsync(0.5f, time + 0.05);
+        await gainParam.LinearRampToValueAtTimeAsync(0, time + 0.35);
     }
 
     public async Task PlayDeflate()
     {
-        GainNode gainNode = await PlaySound("deflate", 1, 2);
+        GainNode gainNode = await PlaySound("deflate", 0, 2);
 
         var gainParam = await gainNode.GetGainAsync();
         var time = await context.GetCurrentTimeAsync();
-        await gainParam.LinearRampToValueAtTimeAsync(1, time + 0.1);
+        await gainParam.LinearRampToValueAtTimeAsync(0.5f, time + 0.1);
         await gainParam.LinearRampToValueAtTimeAsync(0, time + 0.4);
     }
 

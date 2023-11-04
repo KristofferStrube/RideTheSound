@@ -175,7 +175,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
         placement = null;
         startTime = DateTimeOffset.UtcNow;
         currentTime = DateTimeOffset.UtcNow;
-        playerX = 0;
+        playerX = 1;
         energy = 2;
 
         dead = false;
