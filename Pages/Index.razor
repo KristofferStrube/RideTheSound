@@ -59,13 +59,15 @@
                         <h2>You were better than @Math.Round(placement.BetterThanPercent*100, 2)%</h2>
                     </center>
                     <center>
-                        @for (int i = 0; i < placement.SelfInline(lastPlay).Count(); i++)
-                        {
-                            var play = placement.SelfInline(lastPlay).ElementAt(i);
-                            <div style="text-decoration@(play == lastPlay ? "underline" : "none");">
-                                @(placement.Position - placement.FiveBetter.Length + i). <b>@play.User</b> : @play.Score
-                            </div>
-                        }
+                        <div style="width:fit-content;">
+                            @for (int i = 0; i < placement.SelfInline(lastPlay).Count(); i++)
+                            {
+                                var play = placement.SelfInline(lastPlay).ElementAt(i);
+                                <div style="text-decoration:@(play == lastPlay ? "underline" : "none");">
+                                    @(placement.Position - placement.FiveBetter.Length + i). <b>@play.User</b> : @play.Score
+                                </div>
+                            }
+                        </div>
                     </center>
                 }
             </div>
