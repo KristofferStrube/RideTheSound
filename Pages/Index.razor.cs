@@ -49,7 +49,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
     private string token = "";
     private Play? lastPlay;
     private Placement? placement;
-    private string playerName = "KSG";
+    private string playerName = "";
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -201,6 +201,17 @@ public partial class Index : ComponentBase, IAsyncDisposable
                 Token = token
             };
             placement = await ScoreManager.SubmitScore(lastPlay);
+        }
+    }
+
+    const string validCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ";
+
+    private void ValidatePlayerName()
+    {
+        var validatedPlayerName = new string(playerName.Where(c => validCharacters.Contains(Char.ToUpper(c))).Take(3).ToArray()).ToUpper();
+        if (validatedPlayerName != playerName)
+        {
+            playerName = validatedPlayerName;
         }
     }
 

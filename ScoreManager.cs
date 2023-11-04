@@ -30,9 +30,16 @@ public class ScoreManager
 
     public async Task<Placement?> SubmitScore(Play play)
     {
-        play.Hash = play.CalculateHash(clientKey);
-        var response = await httpClient.PostAsJsonAsync($"https://kristoffer-strube.dk/API/scoreboard/{board}", play);
-        return await response.Content.ReadFromJsonAsync<Placement>();
+        try
+        {
+            play.Hash = play.CalculateHash(clientKey);
+            var response = await httpClient.PostAsJsonAsync($"https://kristoffer-strube.dk/API/scoreboard/{board}", play);
+            return await response.Content.ReadFromJsonAsync<Placement>();
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 }
 
