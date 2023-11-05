@@ -87,7 +87,7 @@
                                 {
                                     var play = placement.SelfInline(lastPlay).ElementAt(i);
                                     <div style="color:@(play == lastPlay ? "#40D040" : "white");">
-                                        <pre style="margin:0;">@((placement.Position - placement.FiveBetter.Length + i).ToString().PadLeft(4)). <b>@play.User</b> : @play.Score</pre>
+                                        <pre style="margin:0;">@((placement.Position - placement.FiveBetter.Length + i + 1).ToString().PadLeft(4)). <b>@play.User</b> : @play.Score</pre>
                                     </div>
                                 }
                             </div>
