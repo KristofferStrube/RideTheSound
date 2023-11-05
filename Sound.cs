@@ -105,7 +105,7 @@ public class Sound
         var time = await context.GetCurrentTimeAsync();
         await gainParam.LinearRampToValueAtTimeAsync(0.5f, time + 0.05);
         await gainParam.LinearRampToValueAtTimeAsync(0, time + 0.35);
-        //disconnectNodeAndDisposeAfter(gainNode, 0.4f);
+        disconnectNodeAndDisposeAfter(gainNode, 0.4f);
     }
 
     public async Task PlayDeflate()
