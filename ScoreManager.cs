@@ -6,8 +6,8 @@ namespace RideTheSound;
 
 public class ScoreManager
 {
-    private const string board = "test123";
-    private const int clientKey = 3906;
+    private const string board = "kjam";
+    private const int clientKey = 4013;
 
     private readonly HttpClient httpClient;
 
