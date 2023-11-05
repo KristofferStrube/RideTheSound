@@ -31,57 +31,71 @@
         <circle r="@playerRadius.AsString()" fill="@playerColor" cx="@playerDraw.X.AsString()" cy="@playerDraw.Y.AsString()"></circle>
     </svg>
 
-    <div style="display:flex;position:absolute;top:0;width:100vw;font-family:Consolas;flex-direction:column;">
-        <div style="display:flex;justify-content:center;pointer-events:none;height:10vh;font-size:50px;">
-            @(dead ? score : Math.Round(playerX / 100, 0))<br />
+    @if (uIState is UIState.StartScreen)
+    {
+        <div style="display:flex;justify-content:center;align-content:center;position:absolute;top:0;width:100vw;font-family:Consolas;flex-direction:column;height:90vh;">
+            <center>
+                <button class="btn btn-submit" @onclick="async () => { uIState = UIState.Game; await Start(); }">
+                    Start
+                </button>
+            </center>
         </div>
-
-        @if (dead)
-        {
-            <div style="display:flex;justify-content:center;height:90vh;align-content:center;flex-direction:column;font-size:25px;">
-                <center>
-                    <button class="btn btn-restart" @onclick=Start>
-                        Restart
-                    </button>
-                </center>
-                @if (placement is null || lastPlay is null)
-                {
-                    <center>
-
-                        @if (playerName.Length is 3)
-                        {
-                            <button class="btn btn-submit" @onclick=SubmitScore>
-                                <input @onclick:stopPropagation=true class="playername-input @(playerName.Length is 3 ? "input-valid" : "input-invalid")" @bind-value=playerName @bind-value:event="oninput" @bind-value:after=ValidatePlayerName />
-                                Submit Score
-                            </button>
-                        }
-                        else
-                        {
-                            <button class="btn btn-not-ready" disabled>
-                                <input @onclick:stopPropagation=true class="playername-input @(playerName.Length is 3 ? "input-valid" : "input-invalid")" @bind-value=playerName @bind-value:event="oninput" @bind-value:after=ValidatePlayerName />
-                                Submit Score
-                            </button>
-                        }
-                    </center>
-                }
-                else
-                {
-                    <center>
-                        You were better than @Math.Round(placement.BetterThanPercent * 100, 2)%
-                    </center>
-                    <center>
-                        <div style="width:fit-content;font-size:35px;">
-                            @for (int i = 0; i < placement.SelfInline(lastPlay).Count(); i++)
-                            {
-                                var play = placement.SelfInline(lastPlay).ElementAt(i);
-                                <div style="color:@(play == lastPlay ? "#40D040" : "white");">
-                                    <pre style="margin:0;">@((placement.Position - placement.FiveBetter.Length + i).ToString().PadLeft(4)). <b>@play.User</b> : @play.Score</pre>
-                                </div>
-                            }
-                        </div>
-                    </center>
-                }
+    }
+    else
+    {
+        <div style="display:flex;position:absolute;top:0;width:100vw;font-family:Consolas;flex-direction:column;">
+            <div style="display:flex;justify-content:center;pointer-events:none;height:10vh;font-size:50px;">
+                @(dead ? score : Math.Round(playerX / 100, 0))<br />
             </div>
-        }
-    </div>
+
+            @if (dead)
+            {
+                <div style="display:flex;justify-content:center;height:90vh;align-content:center;flex-direction:column;font-size:25px;">
+                    <center>
+                        <button class="btn btn-restart" @onclick=Start>
+                            Restart
+                        </button>
+                    </center>
+                    @if (placement is null || lastPlay is null)
+                    {
+                        <center>
+
+                            @if (playerName.Length is 3)
+                            {
+                                <button class="btn btn-submit" @onclick=SubmitScore>
+                                    <input @onclick:stopPropagation=true class="playername-input @(playerName.Length is 3 ? "input-valid" : "input-invalid")" @bind-value=playerName @bind-value:event="oninput" @bind-value:after=ValidatePlayerName />
+                                    Submit Score
+                                </button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-not-ready" disabled>
+                                    <input @onclick:stopPropagation=true class="playername-input @(playerName.Length is 3 ? "input-valid" : "input-invalid")" @bind-value=playerName @bind-value:event="oninput" @bind-value:after=ValidatePlayerName />
+                                    Submit Score
+                                </button>
+                            }
+                        </center>
+                    }
+                    else
+                    {
+                        <center>
+                            You were better than @Math.Round(placement.BetterThanPercent * 100, 2)%
+                        </center>
+                        <center>
+                            <div style="width:fit-content;font-size:35px;">
+                                @for (int i = 0; i < placement.SelfInline(lastPlay).Count(); i++)
+                                {
+                                    var play = placement.SelfInline(lastPlay).ElementAt(i);
+                                    <div style="color:@(play == lastPlay ? "#40D040" : "white");">
+                                        <pre style="margin:0;">@((placement.Position - placement.FiveBetter.Length + i).ToString().PadLeft(4)). <b>@play.User</b> : @play.Score</pre>
+                                    </div>
+                                }
+                            </div>
+                        </center>
+                    }
+                </div>
+            }
+        </div>
+    }
+    
 </div>

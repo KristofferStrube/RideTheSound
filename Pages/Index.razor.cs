@@ -38,14 +38,8 @@ public partial class Index : ComponentBase, IAsyncDisposable
     private BallSize ballSize = BallSize.Big;
     private JumpState ballJump = JumpState.Grounded;
     private double jumpTime = 0;
-    private readonly List<SineCurve> sines = [
-        new SineCurve(16, Math.PI / 12, 0, 50),
-        new SineCurve(12, Math.PI / 3, 100, 50),
-        new SineCurve(8, Math.PI / 5, 200, 50),
-        new SineCurve(12, Math.PI / 6, 300, 50),
-        new SineCurve(7, Math.PI / 8, 400, 50),
-        new SineCurve(4, Math.PI / 4, 500, 50),
-        new SineCurve(4, Math.PI / 3, 600, 50),
+    private List<SineCurve> sines = [
+        new SineCurve(16, Math.PI / 8, 0, 1),
     ];
     private bool dead = false;
     private int score = 0;
@@ -53,6 +47,8 @@ public partial class Index : ComponentBase, IAsyncDisposable
     private Play? lastPlay;
     private Placement? placement;
     private string playerName = "";
+    private UIState uIState = UIState.StartScreen;
+    private double friction = 0;
 
     [Inject]
     public required IJSRuntime JSRuntime { get; set; }
@@ -78,8 +74,6 @@ public partial class Index : ComponentBase, IAsyncDisposable
             var key = await e.GetKeyAsync();
             if (key is "ArrowRight" or "d")
                 await Shrink();
-            if (key is "ArrowUp" or "w")
-                Jump();
         });
         keyboardUp = await EventListener<KeyboardEvent>.CreateAsync(JSRuntime, async (e) =>
         {
@@ -93,36 +87,16 @@ public partial class Index : ComponentBase, IAsyncDisposable
         });
         mouseDown = await EventListener<PointerEvent>.CreateAsync(JSRuntime, async (e) =>
         {
-            var buttons = await e.GetButtonsAsync();
-            if (buttons is 1 or 3)
-                await Shrink();
-            if (buttons is 2 or 3)
-                Jump();
+            await Shrink();
         });
         mouseUp = await EventListener<PointerEvent>.CreateAsync(JSRuntime, async (e) =>
         {
-            var buttons = await e.GetButtonsAsync();
-            if (buttons is 0 or 2)
-                await Grow();
+            await Grow();
         });
 
         touchStart = await EventListener<PointerEvent>.CreateAsync(JSRuntime, async (e) =>
         {
-            var touches = await e.GetChangedTouchesAsync();
-            var touchCount = await touches.GetLengthAsync();
-            if (touchCount > 0)
-            {
-                var touch = await touches.ItemAsync(0);
-                var screenX = await touch.GetClientX();
-                if (screenX > windowWidth / 2)
-                {
-                    await Shrink();
-                }
-                else
-                {
-                    Jump();
-                }
-            }
+            await Shrink();
         });
         touchEnd = await EventListener<PointerEvent>.CreateAsync(JSRuntime, async (e) =>
         {
@@ -132,6 +106,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
         async Task Shrink()
         {
             await Sound.PlayMusic();
+            if (uIState is UIState.StartScreen) return;
             if (ballSize is BallSize.Big or BallSize.Growing)
             {
                 ballSize = BallSize.Shrinking;
@@ -141,20 +116,11 @@ public partial class Index : ComponentBase, IAsyncDisposable
 
         async Task Grow()
         {
+            if (uIState is UIState.StartScreen) return;
             if (ballSize is BallSize.Small or BallSize.Shrinking)
             {
                 ballSize = BallSize.Growing;
                 await Sound.PlayBlow();
-            }
-        }
-
-        void Jump()
-        {
-            if (ballJump is JumpState.Grounded)
-            {
-                ballJump = JumpState.Ascending;
-                jumpTime = 0;
-                energy -= 0.5 * Math.Sign(energy);
             }
         }
 
@@ -165,7 +131,27 @@ public partial class Index : ComponentBase, IAsyncDisposable
         await windowTarget.AddEventListenerAsync("touchstart", touchStart);
         await windowTarget.AddEventListenerAsync("touchend", touchEnd);
 
-        await Start();
+
+        token = await ScoreManager.GetToken();
+        lastPlay = null;
+        placement = null;
+        startTime = DateTimeOffset.UtcNow;
+        currentTime = DateTimeOffset.UtcNow;
+        playerX = 1;
+        energy = 4;
+
+        dead = false;
+        score = 0;
+        run?.Cancel();
+        run = new();
+        var cancel = run.Token;
+
+        while (!cancel.IsCancellationRequested)
+        {
+            await Task.Delay(10);
+            MakeCurve();
+            StateHasChanged();
+        }
     }
 
     private async Task Start()
@@ -177,6 +163,17 @@ public partial class Index : ComponentBase, IAsyncDisposable
         currentTime = DateTimeOffset.UtcNow;
         playerX = 1;
         energy = 4;
+        friction = 0.000005;
+
+        sines = [
+        new SineCurve(16, Math.PI / 8, 0, 50),
+            new SineCurve(12, Math.PI / 3, 100, 50),
+            new SineCurve(8, Math.PI / 12, 200, 50),
+            new SineCurve(10, Math.PI / 5, 300, 50),
+            new SineCurve(8, Math.PI / 8, 400, 50),
+            new SineCurve(6, Math.PI / 4, 500, 50),
+            new SineCurve(4, Math.PI / 2, 600, 50),
+        ];
 
         dead = false;
         score = 0;
@@ -294,7 +291,7 @@ public partial class Index : ComponentBase, IAsyncDisposable
 
         double angle = Math.Atan(curve[19] - curve[20]);
         energy += -angle * playerRadius / 100;
-        energy *= 1 - Math.Min(0.1, (dead ? 0.01 : deltaTime * 0.000005 * energy * Math.Log2(Math.Abs(playerX * energy))));
+        energy *= 1 - Math.Min(0.1, (dead ? 0.01 : deltaTime * friction * energy * Math.Log2(Math.Abs(playerX * energy))));
         if (!dead && energy < 0)
         {
             dead = true;
@@ -332,6 +329,12 @@ public partial class Index : ComponentBase, IAsyncDisposable
         Grounded,
         Ascending,
         Descending,
+    }
+
+    public enum UIState
+    {
+        StartScreen,
+        Game
     }
 
     public class SineCurve(double amplitude, double frequency, double offset, double warmup)

@@ -73,9 +73,9 @@ public class Sound
             {
                 var time = await context.GetCurrentTimeAsync();
 
-                await PlaySound("balloon_slap", 4, 1);
+                await PlaySound("balloon_slap", 2, 1);
 
-                await PlayKey(5, bases[round % bases.Length], 0.1f, 0.5f);
+                await PlayKey(4, bases[round % bases.Length], 0.3f, 0.5f);
 
                 if (round % 4 is 0 or 2)
                 {
@@ -84,7 +84,7 @@ public class Sound
 
                 if (round % 4 is 0)
                 {
-                    await PlaySound("nut_in_balloon", 2, 0.5f);
+                    await PlaySound("nut_in_balloon", 1, 0.5f);
                 }
 
                 while (await context.GetCurrentTimeAsync() < time + 60 / BPM)
@@ -99,18 +99,18 @@ public class Sound
 
     public async Task PlayBlow()
     {
-        await using GainNode gainNode = await PlaySound("blow", 0, 2);
+        await using GainNode gainNode = await PlaySound("blow", 2, 2);
 
         var gainParam = await gainNode.GetGainAsync();
         var time = await context.GetCurrentTimeAsync();
         await gainParam.LinearRampToValueAtTimeAsync(0.5f, time + 0.05);
         await gainParam.LinearRampToValueAtTimeAsync(0, time + 0.35);
-        disconnectNodeAndDisposeAfter(gainNode, 0.4f);
+        //disconnectNodeAndDisposeAfter(gainNode, 0.4f);
     }
 
     public async Task PlayDeflate()
     {
-        GainNode gainNode = await PlaySound("deflate", 0, 2);
+        GainNode gainNode = await PlaySound("deflate", 2, 2);
 
         var gainParam = await gainNode.GetGainAsync();
         var time = await context.GetCurrentTimeAsync();
@@ -126,10 +126,11 @@ public class Sound
             PlaybackRate = speed,
             Buffer = audioBuffers[file]
         });
-        GainNode gainNode = await GainNode.CreateAsync(jSRuntime, context, new() { Gain = gain });
+        GainNode gainNode = await GainNode.CreateAsync(jSRuntime, context);
 
         await audioNode.ConnectAsync(gainNode);
         await gainNode.ConnectAsync(destination);
+        await (await gainNode.GetGainAsync()).SetValueAsync(gain);
         await audioNode.StartAsync(time);
 
         disconnectNodeAndDisposeAfter(audioNode, 1);
@@ -146,14 +147,16 @@ public class Sound
         });
         GainNode gainNode = await context.CreateGainAsync();
 
-        await oscillator.ConnectAsync(gainNode);
-        await gainNode.ConnectAsync(destination);
-        await oscillator.StartAsync();
 
         await using var gainParam = await gainNode.GetGainAsync();
         var time = await context.GetCurrentTimeAsync();
+        await gainParam.SetValueAsync(0);
         await gainParam.LinearRampToValueAtTimeAsync(gain, time + length * 1 / 4);
         await gainParam.LinearRampToValueAtTimeAsync(0, time + length * 3 / 4);
+
+        await oscillator.ConnectAsync(gainNode);
+        await gainNode.ConnectAsync(destination);
+        await oscillator.StartAsync();
 
         disconnectNodeAndDisposeAfter(oscillator, length);
         disconnectNodeAndDisposeAfter(gainNode, length);
